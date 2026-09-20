@@ -16,16 +16,11 @@ BlockEvents.broken(event => {
   const dropItem = dropMap[block.id]
 
   if (dropItem) {
-    // 1. Cancel default block destruction
+    // 1. Cancel default block destruction (keeps the ore in place - infinite node)
     event.cancel()
 
     // 2. Spawn the item drop at the block's position
-    let itemEntity = level.createEntity('item')
-    itemEntity.x = block.pos.x + 0.5
-    itemEntity.y = block.pos.y + 1.0
-    itemEntity.z = block.pos.z + 0.5
-    itemEntity.item = dropItem
-    itemEntity.spawn()
+    block.popItem(dropItem)
 
     // 3. Play hit sound
     level.playSound(null, block.pos, 'minecraft:block.stone.hit', 'blocks', 0.5, 1.0)
