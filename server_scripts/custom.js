@@ -22,26 +22,6 @@ BlockEvents.broken(event => {
 
 // Recipes
 ServerEvents.recipes(event => {
-    // Armor Cost Reduction
-    const armorTiers = [
-        { tool: 'iron', material: 'minecraft:iron_ingot' },
-        { tool: 'golden', material: 'minecraft:gold_ingot' },
-        { tool: 'diamond', material: 'minecraft:diamond' }
-    ]
-
-    armorTiers.forEach(({ tool, material }) => {
-        event.remove({ id: `minecraft:${tool}_helmet` })
-        event.shaped(`minecraft:${tool}_helmet`, ['XX', 'XX'], { X: material })
-
-        event.remove({ id: `minecraft:${tool}_chestplate` })
-        event.shaped(`minecraft:${tool}_chestplate`, ['XX', 'XX', 'XX'], { X: material })
-
-        event.remove({ id: `minecraft:${tool}_leggings` })
-        event.shaped(`minecraft:${tool}_leggings`, ['XX', 'XX', 'X '], { X: material })
-
-        event.remove({ id: `minecraft:${tool}_boots` })
-        event.shaped(`minecraft:${tool}_boots`, ['X', 'X', 'X'], { X: material })
-    })
 
     // Smelting / Blasting Adjustments
     event.remove({ output: 'minecraft:coal', type: 'minecraft:smelting' })
