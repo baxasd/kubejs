@@ -1,4 +1,4 @@
-// Make vanilla ore blocks infinite when broken
+// Make vanilla ores infinite when broken
 BlockEvents.broken(event => {
   const { block, level } = event
 
@@ -22,6 +22,26 @@ BlockEvents.broken(event => {
 
 // Recipes
 ServerEvents.recipes(event => {
+    // Armor Cost Reduction
+    const armorTiers = [
+        { tool: 'iron', material: 'minecraft:iron_ingot' },
+        { tool: 'golden', material: 'minecraft:gold_ingot' },
+        { tool: 'diamond', material: 'minecraft:diamond' }
+    ]
+
+    armorTiers.forEach(tier => {
+        event.remove({ id: 'minecraft:' + tier.tool + '_helmet' })
+        event.shaped('minecraft:' + tier.tool + '_helmet', ['XX', 'XX'], { X: tier.material })
+
+        event.remove({ id: 'minecraft:' + tier.tool + '_chestplate' })
+        event.shaped('minecraft:' + tier.tool + '_chestplate', ['XX', 'XX', 'XX'], { X: tier.material })
+
+        event.remove({ id: 'minecraft:' + tier.tool + '_leggings' })
+        event.shaped('minecraft:' + tier.tool + '_leggings', ['XX', 'XX', 'X '], { X: tier.material })
+
+        event.remove({ id: 'minecraft:' + tier.tool + '_boots' })
+        event.shaped('minecraft:' + tier.tool + '_boots', ['X', 'X', 'X'], { X: tier.material })
+    })
 
     // Smelting / Blasting Adjustments
     event.remove({ output: 'minecraft:coal', type: 'minecraft:smelting' })
@@ -82,11 +102,11 @@ ServerEvents.recipes(event => {
         { tool: 'diamond', material: 'minecraft:diamond' }
     ]
 
-    toolTiers.forEach(({ tool, material }) => {
-        event.remove({ id: `minecraft:${tool}_pickaxe` })
-        event.shaped(`minecraft:${tool}_pickaxe`, ['XX', ' #', ' #'], { X: material, '#': 'minecraft:stick' })
+    toolTiers.forEach(tier => {
+        event.remove({ id: 'minecraft:' + tier.tool + '_pickaxe' })
+        event.shaped('minecraft:' + tier.tool + '_pickaxe', ['XX', ' S', ' S'], { X: tier.material, S: 'minecraft:stick' })
 
-        event.remove({ id: `minecraft:${tool}_axe` })
-        event.shaped(`minecraft:${tool}_axe`, ['X#', 'X#'], { X: material, '#': 'minecraft:stick' })
+        event.remove({ id: 'minecraft:' + tier.tool + '_axe' })
+        event.shaped('minecraft:' + tier.tool + '_axe', ['XS', 'XS'], { X: tier.material, S: 'minecraft:stick' })
     })
 })
