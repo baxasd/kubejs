@@ -1,6 +1,6 @@
 // Make vanilla ores infinite when broken
 BlockEvents.broken(event => {
-  const { block, level } = event
+  const { block, level, player } = event
 
   const dropMap = {
     'minecraft:iron_ore': 'minecraft:raw_iron',
@@ -13,9 +13,21 @@ BlockEvents.broken(event => {
     'minecraft:deepslate_gold_ore': 'minecraft:raw_gold'
   }
 
-  if (dropMap[block.id]) {
-    event.cancel() // Stop the block from being broken
-    level.spawnItem(block.pos.above(), dropMap[block.id])
+  const dropItem = dropMap[block.id]
+
+  if (dropItem) {
+    // 1. Cancel default block destruction
+    event.cancel()
+
+    // 2. Spawn the item drop at the block's position
+    let itemEntity = level.createEntity('item')
+    itemEntity.x = block.pos.x + 0.5
+    itemEntity.y = block.pos.y + 1.0
+    itemEntity.z = block.pos.z + 0.5
+    itemEntity.item = dropItem
+    itemEntity.spawn()
+
+    // 3. Play hit sound
     level.playSound(null, block.pos, 'minecraft:block.stone.hit', 'blocks', 0.5, 1.0)
   }
 })
