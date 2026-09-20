@@ -1,14 +1,27 @@
-// Early-game / factory tedium reduction: keep the wood/stone/iron tiers, but stop making
-// the player grind ore 1:1 through a furnace before they can automate anything.
-// Same XP as vanilla, double yield, half the cook time. Applies to every ore, since a
-// Create-automated silk-touch mining setup collects ore blocks, not raw items, and needs
-// this smelting throughput just as much as manual early-game play does.
-//
-// Recipe ids, tags, and vanilla cookingtime/xp verified against the real 1.20.1 data
-// (github.com/misode/mcmeta, tag 1.20.1-data, data/minecraft/recipes + tags/items).
-// Vanilla splits each of these into several recipe files (ore/deepslate_ore/raw item),
-// so remove by output+type rather than guessing individual recipe ids.
+// --- YOUR EXISTING RECIPES ---
 ServerEvents.recipes(event => {
+    // Armor Cost Reduction
+    const armorTiers = [
+        { tool: 'iron', material: 'minecraft:iron_ingot' },
+        { tool: 'golden', material: 'minecraft:gold_ingot' },
+        { tool: 'diamond', material: 'minecraft:diamond' }
+    ]
+
+    armorTiers.forEach(({ tool, material }) => {
+        event.remove({ id: `minecraft:${tool}_helmet` })
+        event.shaped(`minecraft:${tool}_helmet`, ['XX', 'XX'], { X: material })
+
+        event.remove({ id: `minecraft:${tool}_chestplate` })
+        event.shaped(`minecraft:${tool}_chestplate`, ['XX', 'XX', 'XX'], { X: material })
+
+        event.remove({ id: `minecraft:${tool}_leggings` })
+        event.shaped(`minecraft:${tool}_leggings`, ['XX', 'XX', 'X '], { X: material })
+
+        event.remove({ id: `minecraft:${tool}_boots` })
+        event.shaped(`minecraft:${tool}_boots`, ['X', 'X', 'X'], { X: material })
+    })
+
+    // Smelting / Blasting Adjustments
     event.remove({ output: 'minecraft:coal', type: 'minecraft:smelting' })
     event.remove({ output: 'minecraft:coal', type: 'minecraft:blasting' })
     event.smelting('2x minecraft:coal', '#minecraft:coal_ores').xp(0.1).cookingTime(100)
@@ -49,14 +62,45 @@ ServerEvents.recipes(event => {
     event.smelting('2x minecraft:lapis_lazuli', '#minecraft:lapis_ores').xp(0.2).cookingTime(100)
     event.blasting('2x minecraft:lapis_lazuli', '#minecraft:lapis_ores').xp(0.2).cookingTime(50)
 
-    // Quartz and netherite scrap only have a blasting recipe in vanilla (no furnace version) — kept that way.
     event.remove({ output: 'minecraft:quartz', type: 'minecraft:blasting' })
     event.blasting('2x minecraft:quartz', 'minecraft:nether_quartz_ore').xp(0.2).cookingTime(50)
 
     event.remove({ output: 'minecraft:netherite_scrap', type: 'minecraft:blasting' })
     event.blasting('2x minecraft:netherite_scrap', 'minecraft:ancient_debris').xp(2.0).cookingTime(50)
 
-    // Netherite ingot conversion gets the same "halve the requirement" treatment for consistency.
     event.remove({ id: 'minecraft:netherite_ingot' })
     event.shapeless('minecraft:netherite_ingot', ['2x minecraft:netherite_scrap', '2x minecraft:gold_ingot'])
+
+    // Tool Cost Reduction
+    const toolTiers = [
+        { tool: 'wooden', material: '#minecraft:planks' },
+        { tool: 'stone', material: '#minecraft:stone_tool_materials' },
+        { tool: 'iron', material: 'minecraft:iron_ingot' },
+        { tool: 'golden', material: 'minecraft:gold_ingot' },
+        { tool: 'diamond', material: 'minecraft:diamond' }
+    ]
+
+    toolTiers.forEach(({ tool, material }) => {
+        event.remove({ id: `minecraft:${tool}_pickaxe` })
+        event.shaped(`minecraft:${tool}_pickaxe`, ['XX', ' #', ' #'], { X: material, '#': 'minecraft:stick' })
+
+        event.remove({ id: `minecraft:${tool}_axe` })
+        event.shaped(`minecraft:${tool}_axe`, ['X#', 'X#'], { X: material, '#': 'minecraft:stick' })
+    })
+
+    // --- SATISFACTORY CREATE AUTOMATION RECIPES ---
+    // Iron Rod -> Iron Screws via Create Cutting
+    event.recipes.create.cutting('4x kubejs:iron_screw', 'create:iron_rod')
+
+    // Reinforced Iron Plate via Compacting
+    event.recipes.create.compacting('kubejs:reinforced_iron_plate', [
+      '2x create:iron_sheet',
+      '8x kubejs:iron_screw'
+    ])
+
+    // Modular Frame via Item Application or Mechanical Crafting
+    event.recipes.create.item_application('kubejs:modular_frame', [
+      'kubejs:reinforced_iron_plate',
+      'create:andesite_alloy'
+    ])
 })
