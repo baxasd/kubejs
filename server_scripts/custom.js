@@ -1,4 +1,26 @@
-// --- YOUR EXISTING RECIPES ---
+// Make vanilla ore blocks infinite when broken
+BlockEvents.broken(event => {
+  const { block, level } = event
+
+  const dropMap = {
+    'minecraft:iron_ore': 'minecraft:raw_iron',
+    'minecraft:deepslate_iron_ore': 'minecraft:raw_iron',
+    'minecraft:copper_ore': 'minecraft:raw_copper',
+    'minecraft:deepslate_copper_ore': 'minecraft:raw_copper',
+    'minecraft:coal_ore': 'minecraft:coal',
+    'minecraft:deepslate_coal_ore': 'minecraft:coal',
+    'minecraft:gold_ore': 'minecraft:raw_gold',
+    'minecraft:deepslate_gold_ore': 'minecraft:raw_gold'
+  }
+
+  if (dropMap[block.id]) {
+    event.cancel() // Stop the block from being broken
+    level.spawnItem(block.pos.above(), dropMap[block.id])
+    level.playSound(null, block.pos, 'minecraft:block.stone.hit', 'blocks', 0.5, 1.0)
+  }
+})
+
+// Recipes
 ServerEvents.recipes(event => {
     // Armor Cost Reduction
     const armorTiers = [
@@ -87,20 +109,4 @@ ServerEvents.recipes(event => {
         event.remove({ id: `minecraft:${tool}_axe` })
         event.shaped(`minecraft:${tool}_axe`, ['X#', 'X#'], { X: material, '#': 'minecraft:stick' })
     })
-
-    // --- SATISFACTORY CREATE AUTOMATION RECIPES ---
-    // Iron Rod -> Iron Screws via Create Cutting
-    event.recipes.create.cutting('4x kubejs:iron_screw', 'create:iron_rod')
-
-    // Reinforced Iron Plate via Compacting
-    event.recipes.create.compacting('kubejs:reinforced_iron_plate', [
-      '2x create:iron_sheet',
-      '8x kubejs:iron_screw'
-    ])
-
-    // Modular Frame via Item Application or Mechanical Crafting
-    event.recipes.create.item_application('kubejs:modular_frame', [
-      'kubejs:reinforced_iron_plate',
-      'create:andesite_alloy'
-    ])
 })
